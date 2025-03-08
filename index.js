@@ -6,6 +6,8 @@ import bodyParser from "body-parser";
 
 import connectDB from "./config/db.config.js";
 import userRoutes from "./routes/user.routes.js"
+import videoRoutes from "./routes/video.routes.js"
+import { auth } from "./middlewares/auth.middleware.js";
 
 dotenv.config();
 connectDB();
@@ -22,6 +24,7 @@ app.use(fileUpload({
 }));
 app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1/user", userRoutes)
+app.use("/api/v1/video", auth, videoRoutes)
 
 
 app.listen(PORT, () => {

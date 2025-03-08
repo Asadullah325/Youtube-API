@@ -2,7 +2,7 @@ import expess from "express";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import User from "../models/use.model.js";
+import User from "../models/user.model.js";
 import cloudinary from "../config/cloudinary.js";
 
 const router = expess.Router();
