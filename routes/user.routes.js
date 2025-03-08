@@ -61,7 +61,9 @@ router.post("/login", async (req, res) => {
             email: user.email,
             phone: user.phone,
             logoID: user.logoID
-        }, process.env.JWT_SECRET);
+        }, process.env.JWT_SECRET, {
+            expiresIn: "1d"
+        });
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -75,7 +77,7 @@ router.post("/login", async (req, res) => {
             user
         });
 
-        
+
     } catch (error) {
         console.log(error.message);
         res.status(500).json({
