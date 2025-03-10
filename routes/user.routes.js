@@ -11,10 +11,20 @@ router.post("/register", async (req, res) => {
     try {
         const { channelName, email, phone, password } = req.body;
 
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({
+                message: "user already exists"
+            })
+        }
+
         const hashcode = await bcrypt.hash(password, 10);
 
         const fileUpload = await cloudinary.uploader.upload(
             req.files.imageUrl.tempFilePath
+            , {
+                folder: "users"
+            }
         );
 
         const newuser = new User({
@@ -28,7 +38,10 @@ router.post("/register", async (req, res) => {
         });
 
         const user = await newuser.save();
-        res.status(201).json("created", user);
+        res.status(200).json({
+            message: "user registered successfully",
+            user
+        });
 
     } catch (error) {
         console.log(error.message);

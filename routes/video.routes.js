@@ -60,5 +60,72 @@ router.post("/upload", async (req, res) => {
     }
 })
 
+router.put("/update/:id", async (req, res) => {
+    try {
+        const { title, description, category, tags } = req.body;
+        const { id } = req.params;
+
+        let video = await Video.findById(id);
+
+        if (!video) {
+            return res.status(400).json({
+                message: "video not found"
+            });
+        }
+
+        const user = await User.findById(video.user_id);
+
+
+        if (!user) {
+            return res.status(400).json({
+                message: "user not found"
+            });
+        }
+
+        const videoUser = await User.findById(video.user_id);
+        const userVideo = await User.findById(req.user.id);
+        console.log(videoUser, userVideo);
+        
+
+        if (video.user_id.toString() !== req.user.id.toString()) {
+            
+            return res.status(400).json({
+                message: "you are not authorized to update this video"
+            });
+        }
+
+        if (req.files && req.files.thumbnailUrl) {
+            await cloudinary.uploader.destroy(video.thumbnailId);
+            const thumbnailUpload = await cloudinary.uploader.upload(
+                req.files.thumbnailUrl.tempFilePath,
+                {
+                    folder: "thumbnails"
+                }
+            );
+            video.thumbnailUrl = thumbnailUpload.secure_url;
+            video.thumbnailId = thumbnailUpload.public_id;
+        }
+
+        video.title = title ? title : video.title;
+        video.description = description ? description : video.description;
+        video.category = category ? category : video.category;
+        video.tags = tags ? tags.split(",") : video.tags;
+
+        video = await video.save();
+
+        res.status(200).json({
+            message: "video updated successfully",
+            video
+        })
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({
+            error: error.message,
+            message: "something went wrong"
+        })
+    }
+})
+
 
 export default router
